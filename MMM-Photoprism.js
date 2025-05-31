@@ -1,7 +1,14 @@
-const defaultConfig = require('./config.js');
-
 Module.register("MMM-Photoprism", {
-    defaults: defaultConfig,
+    defaults: {
+        apiUrl: "http://photoprism.local:2342",
+        albumId: "",
+        token: "",
+        authMethod: "bearer",
+        updateInterval: 1000 * 60 * 5,
+        fadeSpeed: 2000,
+        maxWidth: "100%",
+        maxHeight: "100%"
+    },
 
     start: function() {
         this.photoList = [];
@@ -16,6 +23,11 @@ Module.register("MMM-Photoprism", {
 
         if (!this.config.albumId) {
             this.error("Album ID is required!");
+            return;
+        }
+
+        if (!this.config.apiUrl) {
+            this.error("PhotoPrism API URL is required!");
             return;
         }
 
@@ -39,12 +51,16 @@ Module.register("MMM-Photoprism", {
         if (this.config.authMethod === "bearer") {
             return {
                 'Authorization': `Bearer ${this.config.token}`,
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Origin': window.location.origin,
+                'Access-Control-Allow-Origin': '*'
             };
         } else {
             return {
                 'X-Auth-Token': this.config.token,
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Origin': window.location.origin,
+                'Access-Control-Allow-Origin': '*'
             };
         }
     },
@@ -53,9 +69,17 @@ Module.register("MMM-Photoprism", {
         const url = `${this.config.apiUrl}/api/v1/albums/${this.config.albumId}/photos`;
         
         fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
             headers: this.getAuthHeader()
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data && data.photos) {
                 this.photoList = data.photos;
@@ -65,6 +89,7 @@ Module.register("MMM-Photoprism", {
         })
         .catch(error => {
             this.error("Failed to fetch photos: " + error);
+            console.error("Full error details:", error);
         });
     },
 

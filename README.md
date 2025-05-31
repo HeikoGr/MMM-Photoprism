@@ -18,49 +18,38 @@ npm install
 
 ## Configuration
 
-You can configure the module in two ways:
-
-### 1. Using the module's config file
-
-Edit the `config.js` file in the module directory to set your default configuration:
-
-```javascript
-const config = {
-    apiUrl: "http://photoprism.local:2342",  // Your PhotoPrism API URL
-    albumId: "your-album-id",                // The ID of the album you want to display
-    token: "your-api-token",                 // Your PhotoPrism API token
-    authMethod: "bearer",                    // Authentication method: "bearer" or "x-auth-token"
-    updateInterval: 1000 * 60 * 5,           // Update interval (default: 5 minutes)
-    fadeSpeed: 2000,                         // Fade speed in milliseconds
-    maxWidth: "100%",                        // Maximum width of the image
-    maxHeight: "100%",                       // Maximum height of the image
-};
-
-module.exports = config;
-```
-
-### 2. Using MagicMirror's config file
-
-Alternatively, you can override these settings in your MagicMirror's `config/config.js` file:
+Add the module to your MagicMirror's `config/config.js` file. Here's a practical example:
 
 ```javascript
 {
-    module: "MMM-Photoprism",
-    position: "fullscreen_below", // This can be any position you prefer
+    module: 'MMM-Photoprism',
+    position: 'fullscreen_below',    // This can be any of the regions
     config: {
-        apiUrl: "http://photoprism.local:2342",  // Your PhotoPrism API URL
-        albumId: "your-album-id",                // The ID of the album you want to display
-        token: "your-api-token",                 // Your PhotoPrism API token
-        authMethod: "bearer",                    // Authentication method: "bearer" or "x-auth-token"
-        updateInterval: 1000 * 60 * 5,           // Update interval (default: 5 minutes)
-        fadeSpeed: 2000,                         // Fade speed in milliseconds
-        maxWidth: "100%",                        // Maximum width of the image
-        maxHeight: "100%",                       // Maximum height of the image
+        apiUrl: "http://photoprism.local:2342",
+        albumId: "abc123",           // Your album ID from PhotoPrism
+        token: "7dbfa37b5a3db2a9e9dd186479018bfe2e3ce5a71fc2f955",
+        authMethod: "bearer",
+        updateInterval: 1000 * 60 * 5,    // Update every 5 minutes
+        fadeSpeed: 2000,                  // 2 second fade
+        maxWidth: "100%",
+        maxHeight: "100%"
     }
-}
+},
 ```
 
-Settings in the MagicMirror config file will override those in the module's `config.js`.
+### Required Configuration Options
+
+- `apiUrl`: Your PhotoPrism instance URL (e.g., "http://photoprism.local:2342")
+- `albumId`: The ID of the album you want to display
+- `token`: Your PhotoPrism API token
+- `authMethod`: Authentication method ("bearer" or "x-auth-token")
+
+### Optional Configuration Options
+
+- `updateInterval`: How often to refresh the photos (default: 5 minutes)
+- `fadeSpeed`: How long the fade transition takes in milliseconds (default: 2000)
+- `maxWidth`: Maximum width of the image (default: "100%")
+- `maxHeight`: Maximum height of the image (default: "100%")
 
 ### Authentication Methods
 
@@ -113,6 +102,10 @@ The response will contain an `access_token` that you can use in the module's con
 - Responsive design
 - Error handling and loading states
 - Support for multiple authentication methods
+
+## Misc
+if nothing loads, check the javascript console (F12 on Firefox) and if you get a CORS error, make sure you add this to photoprism:
+       PHOTOPRISM_CORS_ORIGIN: "*"
 
 ## License
 
