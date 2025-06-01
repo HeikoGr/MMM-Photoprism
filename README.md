@@ -8,6 +8,8 @@ A MagicMirror module that displays photos from your PhotoPrism installation.
 - Node.js installed on your Raspberry Pi
 - PhotoPrism instance running and accessible
 
+WORK IN PROGRESS, DOESNT WORK YET (at least for me)
+
 ## Installation
 
 1. Install Node.js on your Raspberry Pi:
