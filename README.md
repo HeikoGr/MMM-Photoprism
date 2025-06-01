@@ -1,62 +1,46 @@
 # MMM-Photoprism
 
-A MagicMirror module that displays photos from your PhotoPrism installation.
+A MagicMirror module that displays random photos from your PhotoPrism albums. The module will automatically fetch a new random photo every 5 minutes from a specified album.
 
-## Prerequisites
+## Features
 
-- MagicMirror² installed
-- Node.js installed on your Raspberry Pi
-- PhotoPrism instance running and accessible
-
-WORK IN PROGRESS, DOESNT WORK YET (at least for me)
+- Displays random photos from a specified PhotoPrism album
+- Automatic updates every 5 minutes
+- Smooth fade transitions between photos
+- Displays photo titles (if available)
+- Caches images locally for better performance
+- Detailed logging for troubleshooting
 
 ## Installation
 
-1. Install Node.js on your Raspberry Pi:
-```bash
-# Update package lists
-sudo apt update
-
-# Install Node.js and npm
-sudo apt install nodejs npm
-
-# Verify installation
-node -v
-npm -v
-```
-
-2. Clone this repository into your MagicMirror modules directory:
+1. Clone this repository into your MagicMirror modules directory:
 ```bash
 cd ~/MagicMirror/modules
 git clone https://github.com/yourusername/MMM-Photoprism.git
 ```
 
-3. Install the required dependencies:
+2. Install the required dependencies:
 ```bash
 cd MMM-Photoprism
-npm install node-fetch
+npm install
 ```
-
-4. Add the module to your MagicMirror configuration file (`config/config.js`).
 
 ## Configuration
 
-Add the following to your MagicMirror configuration file:
+Add the following configuration block to your MagicMirror config.js file:
 
 ```javascript
 {
     module: "MMM-Photoprism",
-    position: "middle_center",  // or any other position
+    position: "middle_center", // This can be any of the MagicMirror positions
     config: {
-        apiUrl: "http://your-photoprism-url:2342",  // Your PhotoPrism URL
-        albumId: "your-album-id",                   // The ID of the album to display
-        token: "your-api-token",                    // Your PhotoPrism API token
-        authMethod: "bearer",                       // "bearer" or "x-auth-token"
-        updateInterval: 300000,                     // Update interval in milliseconds (default: 5 minutes)
-        fadeSpeed: 2000,                           // Fade transition speed in milliseconds
-        maxWidth: "100%",                          // Maximum width of photos
-        maxHeight: "100%",                         // Maximum height of photos
-        debug: false                               // Enable debug logging
+        apiUrl: "http://your-photoprism-server:2342", // Your PhotoPrism server URL
+        apiKey: "your-api-key", // Your PhotoPrism API key
+        albumId: "your-album-id", // The ID of the album to display
+        updateInterval: 5 * 60 * 1000, // Update interval in milliseconds (default: 5 minutes)
+        fadeSpeed: 1000, // Fade transition speed in milliseconds
+        maxWidth: "100%", // Maximum width of the image
+        maxHeight: "100%" // Maximum height of the image
     }
 }
 ```
@@ -65,107 +49,30 @@ Add the following to your MagicMirror configuration file:
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `apiUrl` | The URL of your PhotoPrism instance | `"http://photoprism.local:2342"` |
-| `albumId` | The ID of the album to display | `""` (required) |
-| `token` | Your PhotoPrism API token | `""` (required) |
-| `authMethod` | Authentication method: "bearer" or "x-auth-token" | `"bearer"` |
-| `updateInterval` | How often to fetch new photos (in milliseconds) | `300000` (5 minutes) |
-| `fadeSpeed` | Speed of fade transitions (in milliseconds) | `2000` |
-| `maxWidth` | Maximum width of photos | `"100%"` |
-| `maxHeight` | Maximum height of photos | `"100%"` |
-| `debug` | Enable debug logging | `false` |
+| `apiUrl` | The URL of your PhotoPrism server | "http://localhost:2342" |
+| `apiKey` | Your PhotoPrism API key | "" |
+| `albumId` | The ID of the album to display photos from | "" |
+| `updateInterval` | How often to fetch a new photo (in milliseconds) | 300000 (5 minutes) |
+| `fadeSpeed` | Speed of the fade transition between photos (in milliseconds) | 1000 |
+| `maxWidth` | Maximum width of the displayed image | "100%" |
+| `maxHeight` | Maximum height of the displayed image | "100%" |
 
-## Getting Your PhotoPrism API Token
+## Getting Your PhotoPrism API Key
 
 1. Log in to your PhotoPrism instance
 2. Go to Settings > Advanced
-3. Click on "API Token"
-4. Generate a new token
-5. Copy the token and use it in your configuration
-
-## Getting Your Album ID
-
-1. Open your PhotoPrism instance in a web browser
-2. Navigate to the album you want to display
-3. The album ID is in the URL: `https://your-photoprism-url/albums/ALBUM_ID`
+3. Generate a new API key
+4. Copy the key and use it in the module configuration
 
 ## Troubleshooting
 
-### Prerequisites Check
-
-If you're having issues, first verify that all prerequisites are installed:
-
-1. Check Node.js installation:
-```bash
-node -v
-```
-If this command is not found, you need to install Node.js (see Installation section).
-
-2. Check npm installation:
-```bash
-npm -v
-```
-If this command is not found, you need to install npm (see Installation section).
-
-3. Verify node-fetch is installed:
-```bash
-cd ~/MagicMirror/modules/MMM-Photoprism
-npm list node-fetch
-```
-
-### CORS Issues
-
-This module is designed to avoid CORS issues by making API calls server-side through the node helper. If you're still experiencing issues:
-
-1. Make sure your PhotoPrism instance is accessible from your MagicMirror server
-2. Verify your API token is correct
-3. Check that your album ID is valid
-4. Enable debug mode in the configuration to see detailed logs
-
-### Common Issues
-
-1. **Module not loading photos**
-   - Check the MagicMirror console for error messages
-   - Verify your API token and album ID
-   - Make sure your PhotoPrism instance is accessible
-   - Enable debug mode for more detailed logs
-
-2. **Node helper not starting**
-   - Make sure Node.js is installed (`node -v`)
-   - Make sure `node-fetch` is installed
-   - Check MagicMirror logs for any error messages
-   - Verify you have the correct permissions on the module directory
-
-3. **Photos not displaying**
-   - Check the network tab in your browser's developer tools
-   - Verify the photo URLs are correct
-   - Make sure your PhotoPrism instance is accessible from your browser
-
-### Debug Mode
-
-Enable debug mode in your configuration to see detailed logs:
-
-```javascript
-{
-    module: "MMM-Photoprism",
-    config: {
-        // ... other config options ...
-        debug: true
-    }
-}
-```
-
-This will show:
-- Module initialization
-- Node helper status
-- API requests and responses
-- Photo loading status
+The module includes detailed logging that can be enabled by setting `DEBUG = true` in the node_helper.js file. This will show:
+- API request details
+- Response data
+- Image selection process
+- Download status
 - Any errors that occur
-
-## Contributing
-
-Feel free to submit issues and pull requests. 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details. 
