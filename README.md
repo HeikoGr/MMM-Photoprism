@@ -2,6 +2,8 @@
 
 A MagicMirror² module that displays photos from your PhotoPrism installation.
 
+WORK IN PROGRESS, DOESNT WORK YET (at least for me)
+
 ## Installation
 
 1. Clone this repository into your MagicMirror's `modules` directory:
