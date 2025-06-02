@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "MagicMirror module to display random photos from PhotoPrism albums",
   "main": "MMM-Photoprism.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brtrnd/MMM-Photoprism.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
