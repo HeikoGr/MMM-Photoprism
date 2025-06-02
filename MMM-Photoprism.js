@@ -1,13 +1,13 @@
 Module.register("MMM-Photoprism", {
     defaults: {
-        apiUrl: "http://localhost:2342",
-        apiKey: "",
-        albumId: "",
+        apiUrl: "http://photoprism.local:2342",
+        apiKey: "", //see README for how to obtain (curl is easiest)
+        albumId: "", //you can find it in the URL when you browse to your album
         updateInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
         fadeSpeed: 1000, // Fade speed in milliseconds
         maxWidth: "100%",
         maxHeight: "100%",
-        cacheRetentionDays: 5 // Number of days to keep cached images
+        cacheRetentionDays: 1 // Number of days to keep cached images
     },
 
     getStyles: function() {
@@ -47,12 +47,26 @@ Module.register("MMM-Photoprism", {
             img.className = "photoprism-image";
             wrapper.appendChild(img);
 
-            if (this.currentImage.title) {
-                console.log("[MMM-Photoprism] Adding title:", this.currentImage.title);
-                const title = document.createElement("div");
-                title.className = "photoprism-title";
-                title.innerHTML = this.currentImage.title;
-                wrapper.appendChild(title);
+            if (this.currentImage.title || this.currentImage.location) {
+                console.log("[MMM-Photoprism] Adding title and location");
+                const infoContainer = document.createElement("div");
+                infoContainer.className = "photoprism-info";
+                
+                if (this.currentImage.title) {
+                    const title = document.createElement("div");
+                    title.className = "photoprism-title";
+                    title.innerHTML = this.currentImage.title;
+                    infoContainer.appendChild(title);
+                }
+                
+                if (this.currentImage.location) {
+                    const location = document.createElement("div");
+                    location.className = "photoprism-location";
+                    location.innerHTML = this.currentImage.location;
+                    infoContainer.appendChild(location);
+                }
+                
+                wrapper.appendChild(infoContainer);
             }
         } else {
             console.log("[MMM-Photoprism] No image available to display");

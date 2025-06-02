@@ -1,6 +1,7 @@
 # MMM-Photoprism
 
 A MagicMirror module that displays random photos from your PhotoPrism albums. The module will automatically fetch a new random photo every 5 minutes from a specified album.
+Please keep in mind this is mostly vibe-coded. I was happy to have a working exampe
 
 ## Features
 
@@ -42,7 +43,7 @@ Add the following configuration block to your MagicMirror config.js file:
         maxWidth: "100%", // Maximum width of the image
         maxHeight: "100%" // Maximum height of the image
     }
-}
+},
 ```
 
 ### Configuration Options
@@ -56,6 +57,8 @@ Add the following configuration block to your MagicMirror config.js file:
 | `fadeSpeed` | Speed of the fade transition between photos (in milliseconds) | 1000 |
 | `maxWidth` | Maximum width of the displayed image | "100%" |
 | `maxHeight` | Maximum height of the displayed image | "100%" |
+
+You can also set the retentiondays in the mmm-photoprism.js file. By default it removes all files after one day.
 
 ## Getting Your PhotoPrism API Key
 
@@ -72,6 +75,13 @@ The module includes detailed logging that can be enabled by setting `DEBUG = tru
 - Image selection process
 - Download status
 - Any errors that occur
+
+## Code Quality
+
+This module includes an ESLint configuration (`.eslintrc.json`) that was automatically generated to match common MagicMirror module standards. The configuration is provided as-is without any specific expertise in ESLint. It's included to help maintain code quality and consistency, but may need adjustments based on your specific needs or preferences.
+
+## Update
+Tweaking CSS
 
 ## License
 
