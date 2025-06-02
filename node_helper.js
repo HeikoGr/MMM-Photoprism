@@ -171,8 +171,22 @@ module.exports = NodeHelper.create({
         });
 
         try {
-            // Use the download endpoint with the download token
-            const imageUrl = `${this.config.apiUrl}/api/v1/dl/${selectedImage.UID}?t=${this.tokens.download}`;
+            // Get the first file from the Files array
+            if (!selectedImage.Files || selectedImage.Files.length === 0) {
+                this.log("No files found for image:", selectedImage);
+                this.sendSocketNotification("ERROR", "No files found for selected image");
+                return;
+            }
+
+            const file = selectedImage.Files[0];
+            this.log("Selected file for download:", {
+                Hash: file.Hash,
+                Name: file.Name,
+                Type: file.Type
+            });
+
+            // Use the download endpoint with the file hash
+            const imageUrl = `${this.config.apiUrl}/api/v1/dl/${file.Hash}?t=${this.tokens.download}`;
             this.log(`Downloading image from: ${imageUrl}`);
             
             const response = await axios.get(imageUrl, {
@@ -196,15 +210,15 @@ module.exports = NodeHelper.create({
 
             // Add timestamp to filename to prevent conflicts
             const timestamp = new Date().getTime();
-            const imagePath = path.join(this.cacheDir, `${selectedImage.UID}_${timestamp}.jpg`);
+            const imagePath = path.join(this.cacheDir, `${file.Hash}_${timestamp}.jpg`);
             fs.writeFileSync(imagePath, response.data);
             this.log(`Image saved to: ${imagePath}`);
             
             // Clean up old versions of this image
-            this.cleanupOldVersions(selectedImage.UID, timestamp);
+            this.cleanupOldVersions(file.Hash, timestamp);
             
             this.currentImage = {
-                path: `/modules/MMM-Photoprism/cache/${selectedImage.UID}_${timestamp}.jpg`,
+                path: `/modules/MMM-Photoprism/cache/${file.Hash}_${timestamp}.jpg`,
                 title: selectedImage.Title || "Untitled",
                 takenAt: selectedImage.TakenAt
             };
@@ -226,10 +240,10 @@ module.exports = NodeHelper.create({
         }
     },
 
-    cleanupOldVersions: function(imageUID, currentTimestamp) {
+    cleanupOldVersions: function(fileHash, currentTimestamp) {
         try {
             const files = fs.readdirSync(this.cacheDir);
-            const pattern = new RegExp(`^${imageUID}_\\d+\\.jpg$`);
+            const pattern = new RegExp(`^${fileHash}_\\d+\\.jpg$`);
             
             files.forEach(file => {
                 if (pattern.test(file)) {

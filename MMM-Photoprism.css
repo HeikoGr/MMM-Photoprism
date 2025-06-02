@@ -2,12 +2,32 @@
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
 
-.photoprism-container img {
+.photoprism-image {
+    width: auto;
+    height: auto;
+    max-width: 600px;
+    max-height: 600px;
     object-fit: contain;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: opacity 1000ms ease-in-out;
+    display: block;
+	z-index: 0; /*always lowest*/
+}
+
+.photoprism-title {
+    margin-top: 10px;
+    font-size: 1em;
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 0;
 } 

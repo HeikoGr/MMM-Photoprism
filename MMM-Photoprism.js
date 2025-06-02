@@ -10,6 +10,10 @@ Module.register("MMM-Photoprism", {
         cacheRetentionDays: 5 // Number of days to keep cached images
     },
 
+    getStyles: function() {
+        return ["MMM-Photoprism.css"];
+    },
+
     start: function() {
         console.log("[MMM-Photoprism] Starting module");
         this.currentImage = null;
@@ -40,9 +44,7 @@ Module.register("MMM-Photoprism", {
             console.log("[MMM-Photoprism] Creating image element for:", this.currentImage.path);
             const img = document.createElement("img");
             img.src = this.currentImage.path;
-            img.style.maxWidth = this.config.maxWidth;
-            img.style.maxHeight = this.config.maxHeight;
-            img.style.transition = `opacity ${this.config.fadeSpeed}ms ease-in-out`;
+            img.className = "photoprism-image";
             wrapper.appendChild(img);
 
             if (this.currentImage.title) {
