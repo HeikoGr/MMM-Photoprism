@@ -21,8 +21,8 @@ Module.register("MMM-Photoprism", {
         this.currentImage = null;
         this.loaded = false;
         this.error = null;
-        //this.sendSocketNotification("CONFIG", this.config);
-        console.log("[MMM-Photoprism] Configuration sent to node helper");
+
+        // Initial configuration send to node helper is done in resume()
     },
 
     getDom: function() {
@@ -113,6 +113,7 @@ Module.register("MMM-Photoprism", {
     },
 
     suspend: function() {
+        this.suspended = true;
         console.log("[MMM-Photoprism] Module suspended");
         if (this.updateTimer) {
             clearInterval(this.updateTimer);
@@ -121,6 +122,7 @@ Module.register("MMM-Photoprism", {
     },
 
     resume: function() {
+        this.suspended = false;
         console.log("[MMM-Photoprism] Module resumed");
         this.sendSocketNotification("CONFIG", this.config);
     }
