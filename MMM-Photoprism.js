@@ -125,6 +125,9 @@ Module.register("MMM-Photoprism", {
 
     resume: function() {
         console.log("[MMM-Photoprism] Module resumed");
+
+        this.sendSocketNotification("CONFIG", this.config);
+        
         // Intervall neu starten
         if (!this.updateTimer) {
             this.updateTimer = setInterval(() => {
