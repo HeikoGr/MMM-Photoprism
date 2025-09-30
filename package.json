@@ -1,5 +1,5 @@
 {
-  "name": "MMM-Photoprism",
+  "name": "mmm-photoprism",
   "version": "1.0.0",
   "description": "MagicMirror module to display random photos from PhotoPrism albums",
   "main": "MMM-Photoprism.js",
