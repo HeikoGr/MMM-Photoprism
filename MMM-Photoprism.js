@@ -128,10 +128,6 @@ Module.register("MMM-Photoprism", {
 
         this.sendSocketNotification("CONFIG", this.config);
 
-        if (this.updateTimer) {
-            clearInterval(this.updateTimer);
-            this.updateTimer = null;
-        }
         // Intervall neu starten
         if (!this.updateTimer) {
             this.updateTimer = setInterval(() => {
