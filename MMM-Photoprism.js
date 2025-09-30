@@ -1,5 +1,4 @@
 Module.register("MMM-Photoprism", {
-    suspended: false,
     updateTimer: null,
     defaults: {
         apiUrl: "http://photoprism.local:2342",
@@ -103,17 +102,14 @@ Module.register("MMM-Photoprism", {
                 clearInterval(this.updateTimer);
             }
             this.updateTimer = setInterval(() => {
-                if (!this.suspended) {
-                    console.log("[MMM-Photoprism] Interval triggered, requesting new image");
-                    this.error = null;
-                    this.sendSocketNotification("CONFIG", this.config);
-                }
+                console.log("[MMM-Photoprism] Interval triggered, requesting new image");
+                this.error = null;
+                this.sendSocketNotification("CONFIG", this.config);
             }, this.config.updateInterval);
         }
     },
 
     suspend: function() {
-        this.suspended = true;
         console.log("[MMM-Photoprism] Module suspended");
         if (this.updateTimer) {
             clearInterval(this.updateTimer);
@@ -122,8 +118,14 @@ Module.register("MMM-Photoprism", {
     },
 
     resume: function() {
-        this.suspended = false;
         console.log("[MMM-Photoprism] Module resumed");
-        this.sendSocketNotification("CONFIG", this.config);
+        // Intervall neu starten
+        if (!this.updateTimer) {
+            this.updateTimer = setInterval(() => {
+                console.log("[MMM-Photoprism] Interval triggered, requesting new image");
+                this.error = null;
+                this.sendSocketNotification("CONFIG", this.config);
+            }, this.config.updateInterval);
+        }
     }
 }); 
