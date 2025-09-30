@@ -36,7 +36,7 @@ Module.register("MMM-Photoprism", {
         }
 
         if (!this.loaded) {
-            console.log("[MMM-Photoprism] Module not loaded yet, showing loading message");
+            console.log("[MMM-Photoprism] Module not loaded yet or suspended, showing loading message");
             wrapper.innerHTML = "Loading...";
             return wrapper;
         }
@@ -111,6 +111,12 @@ Module.register("MMM-Photoprism", {
 
     suspend: function() {
         console.log("[MMM-Photoprism] Module suspended");
+
+        this.currentImage = null;
+        this.loaded = false;
+        this.error = null;
+        this.updateDom(this.config.fadeSpeed);
+
         if (this.updateTimer) {
             clearInterval(this.updateTimer);
             this.updateTimer = null;
