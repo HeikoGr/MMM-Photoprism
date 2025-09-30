@@ -1,4 +1,6 @@
 Module.register("MMM-Photoprism", {
+    suspended: false,
+    updateTimer: null,
     defaults: {
         apiUrl: "http://photoprism.local:2342",
         apiKey: "", //see README for how to obtain (curl is easiest)
@@ -19,7 +21,7 @@ Module.register("MMM-Photoprism", {
         this.currentImage = null;
         this.loaded = false;
         this.error = null;
-        this.sendSocketNotification("CONFIG", this.config);
+        //this.sendSocketNotification("CONFIG", this.config);
         console.log("[MMM-Photoprism] Configuration sent to node helper");
     },
 
@@ -97,11 +99,29 @@ Module.register("MMM-Photoprism", {
         if (notification === "DOM_OBJECTS_CREATED") {
             console.log("[MMM-Photoprism] DOM objects created, starting update interval");
             // Start the update interval
-            setInterval(() => {
-                console.log("[MMM-Photoprism] Interval triggered, requesting new image");
-                this.error = null;
-                this.sendSocketNotification("CONFIG", this.config);
+            if (this.updateTimer) {
+                clearInterval(this.updateTimer);
+            }
+            this.updateTimer = setInterval(() => {
+                if (!this.suspended) {
+                    console.log("[MMM-Photoprism] Interval triggered, requesting new image");
+                    this.error = null;
+                    this.sendSocketNotification("CONFIG", this.config);
+                }
             }, this.config.updateInterval);
         }
+    },
+
+    suspend: function() {
+        console.log("[MMM-Photoprism] Module suspended");
+        if (this.updateTimer) {
+            clearInterval(this.updateTimer);
+            this.updateTimer = null;
+        }
+    },
+
+    resume: function() {
+        console.log("[MMM-Photoprism] Module resumed");
+        this.sendSocketNotification("CONFIG", this.config);
     }
 }); 
