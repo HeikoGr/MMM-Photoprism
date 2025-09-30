@@ -111,6 +111,12 @@ Module.register("MMM-Photoprism", {
 
     suspend: function() {
         console.log("[MMM-Photoprism] Module suspended");
+
+            this.currentImage = null;
+            this.loaded = false;
+            this.error = null;
+            this.updateDom(this.config.fadeSpeed);
+
         if (this.updateTimer) {
             clearInterval(this.updateTimer);
             this.updateTimer = null;
@@ -119,6 +125,13 @@ Module.register("MMM-Photoprism", {
 
     resume: function() {
         console.log("[MMM-Photoprism] Module resumed");
+
+        this.sendSocketNotification("CONFIG", this.config);
+
+        if (this.updateTimer) {
+            clearInterval(this.updateTimer);
+            this.updateTimer = null;
+        }
         // Intervall neu starten
         if (!this.updateTimer) {
             this.updateTimer = setInterval(() => {
