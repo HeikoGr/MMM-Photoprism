@@ -1,1 +1,6 @@
-.sync_state
+node_modules
+.DS_Store
+.vscode
+*.log
+*.tmp
+*.bak
