@@ -1,4 +1,5 @@
 Module.register("MMM-Photoprism", {
+    updateTimer: null,
     defaults: {
         apiUrl: "http://photoprism.local:2342",
         apiKey: "", //see README for how to obtain (curl is easiest)
@@ -19,8 +20,8 @@ Module.register("MMM-Photoprism", {
         this.currentImage = null;
         this.loaded = false;
         this.error = null;
-        this.sendSocketNotification("CONFIG", this.config);
-        console.log("[MMM-Photoprism] Configuration sent to node helper");
+
+        // Initial configuration send to node helper is done in resume()
     },
 
     getDom: function() {
@@ -97,7 +98,39 @@ Module.register("MMM-Photoprism", {
         if (notification === "DOM_OBJECTS_CREATED") {
             console.log("[MMM-Photoprism] DOM objects created, starting update interval");
             // Start the update interval
-            setInterval(() => {
+            if (this.updateTimer) {
+                clearInterval(this.updateTimer);
+            }
+            this.updateTimer = setInterval(() => {
+                console.log("[MMM-Photoprism] Interval triggered, requesting new image");
+                this.error = null;
+                this.sendSocketNotification("CONFIG", this.config);
+            }, this.config.updateInterval);
+        }
+    },
+
+    suspend: function() {
+        console.log("[MMM-Photoprism] Module suspended");
+
+            this.currentImage = null;
+            this.loaded = false;
+            this.error = null;
+            this.updateDom(this.config.fadeSpeed);
+
+        if (this.updateTimer) {
+            clearInterval(this.updateTimer);
+            this.updateTimer = null;
+        }
+    },
+
+    resume: function() {
+        console.log("[MMM-Photoprism] Module resumed");
+
+        this.sendSocketNotification("CONFIG", this.config);
+
+        // Intervall neu starten
+        if (!this.updateTimer) {
+            this.updateTimer = setInterval(() => {
                 console.log("[MMM-Photoprism] Interval triggered, requesting new image");
                 this.error = null;
                 this.sendSocketNotification("CONFIG", this.config);
