@@ -58,6 +58,10 @@ Add the following configuration block to your MagicMirror config.js file:
 | `maxWidth` | Maximum width of the displayed image | "100%" |
 | `maxHeight` | Maximum height of the displayed image | "100%" |
 
+| `useThumbnails` | Whether to request PhotoPrism thumbnails instead of full images (recommended for performance) | `true` |
+| `thumbnailSize` | Named thumbnail size to request from PhotoPrism (e.g. `fit_1920`, `tile_500`). Use `auto` to pick a size based on the display (recommended). | `auto` |
+| `preloadInBrowser` | Preload images into the browser cache (hidden `<img>`) so switching is instant and works while module is suspended | `true` |
+
 You can also set the retentiondays in the mmm-photoprism.js file. By default it removes all files after one day.
 
 ## Getting Your PhotoPrism API Key
@@ -82,6 +86,65 @@ This module includes an ESLint configuration (`.eslintrc.json`) that was automat
 
 ## Update
 Tweaking CSS
+
+## Thumbnail sizes and recommendations
+
+PhotoPrism provides a set of named thumbnail sizes that are preferred to raw pixel parameters. Examples include `tile_500`, `fit_1280`, `fit_1920`, `fit_3840`, and many more. Using these named sizes is more predictable and aligns with PhotoPrism's caching and generation strategy.
+
+Recommended values:
+- `fit_720` — small screens or low-bandwidth devices
+- `fit_1280` — typical tablets or small HD displays
+- `fit_1920` — Full HD displays (good default for most TVs)
+- `fit_3840` — 4K displays
+
+The module supports `thumbnailSize: "auto"` (default). When set to `auto` the frontend will calculate a sensible `fit_<N>` value based on the browser window size and the devicePixelRatio and send that to the node helper. This avoids downloading thumbnails much larger than the display resolution while still keeping quality high on high-DPI screens.
+
+If you prefer to force a specific size, set `thumbnailSize: "fit_1920"` (or any other named size from PhotoPrism's sizes list).
+
+### Performance and image quality on low-power devices
+
+On devices with limited GPU/CPU resources (e.g., Raspberry Pi or similar SBCs), rendering thumbnails that must be up- or downscaled in the browser can sometimes result in visible banding or a reduced effective bit depth due to how scaling, compositing, and color conversion are implemented in the browser/driver stack. To minimize this:
+
+- Match the requested thumbnail size to the actual displayed size as closely as possible.
+- Prefer `thumbnailSize: "auto"` so the module chooses a `fit_<N>` close to your window size and devicePixelRatio.
+- Avoid scaling images significantly in CSS (e.g., large differences between thumbnail and displayed size via `maxWidth`/`maxHeight`).
+- For Full HD displays, `fit_1920` is a good default; for 4K, `fit_3840` is recommended.
+
+In short: the displayed size should always match the thumbnails to avoid unnecessary client-side scaling, which can degrade perceived quality on low-power devices.
+
+### Example: Centered and scaled image (CSS)
+
+Below is an example showing how to center the image and constrain it within a safe area of the screen. This avoids excessive scaling in the browser and keeps performance good on low-power devices. See the note above on scaling in “Performance and image quality on low-power devices”.
+
+```css
+body {
+    margin: 0px;
+    position: absolute;
+    height: calc(100%);
+    width: calc(100%);
+    overflow: hidden;
+}
+
+.photoprism-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 12.5vw;
+    right: 12.5vw;
+    max-height: 75vh;
+    max-width: 75vw;
+}
+
+.photoprism-image {
+    display: block;
+    left: auto;
+    right: auto;
+    max-height: 100%;
+    max-width: 100%;
+}
+```
+
+Tip: Adjust the `max-width`/`max-height` and the side insets (`left` / `right`) to fit your display. If you force the image to be much smaller or larger than the requested thumbnail size, the browser will scale it, which may impact quality (see section above).
 
 ## License
 
