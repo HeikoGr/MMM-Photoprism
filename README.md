@@ -57,7 +57,6 @@ Add the following configuration block to your MagicMirror config.js file:
 | `fadeSpeed` | Speed of the fade transition between photos (in milliseconds) | 1000 |
 | `maxWidth` | Maximum width of the displayed image | "100%" |
 | `maxHeight` | Maximum height of the displayed image | "100%" |
-
 | `useThumbnails` | Whether to request PhotoPrism thumbnails instead of full images (recommended for performance) | `true` |
 | `thumbnailSize` | Named thumbnail size to request from PhotoPrism (e.g. `fit_1920`, `tile_500`). Use `auto` to pick a size based on the display (recommended). | `auto` |
 | `preloadInBrowser` | Preload images into the browser cache (hidden `<img>`) so switching is instant and works while module is suspended | `true` |
