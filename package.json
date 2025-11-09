@@ -8,7 +8,11 @@
     "url": "git+https://github.com/Brtrnd/MMM-Photoprism.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint . --ext .js || true && prettier --check .",
+    "lint:fix": "eslint --fix . && prettier --write .",
+    "test": "npm run lint",
+    "test:spelling": "cspell .",
+    "check": "node check.js ../../config/config.js || true"
   },
   "keywords": [
     "MagicMirror",
@@ -20,5 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.13.1"
+  },
+  "devDependencies": {
+    "cspell": "^9.3.0"
   }
-} 
+}
