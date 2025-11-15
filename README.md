@@ -28,6 +28,10 @@ cd MMM-Photoprism2
 npm install
 ```
 
+## Update
+
+
+
 ## Configuration
 
 Add the following configuration block to your MagicMirror config.js file:
@@ -86,7 +90,14 @@ The module includes detailed logging that can be enabled by setting `DEBUG = tru
 This module includes an ESLint configuration (`.eslintrc.json`) that was automatically generated to match common MagicMirror module standards. The configuration is provided as-is without any specific expertise in ESLint. It's included to help maintain code quality and consistency, but may need adjustments based on your specific needs or preferences.
 
 ## Update
-Tweaking CSS
+
+To update the module to the latest version:
+
+```bash
+cd ~/MagicMirror/modules/MMM-Photoprism2
+git pull
+npm install
+```
 
 ## Thumbnail sizes and recommendations
 
