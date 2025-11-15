@@ -149,4 +149,4 @@ Tip: Adjust the `max-width`/`max-height` and the side insets (`left` / `right`) 
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
