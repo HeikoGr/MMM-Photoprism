@@ -9,6 +9,7 @@ Danke für dein Interesse am Mitwirken! Hier sind die wichtigsten Schritte:
 - Öffne einen PR mit Beschreibung, Tests/Schritten und ggf. Screenshots.
 
 PR-Checklist:
+
 - Lints sauber (oder nur harmloses Prettier-Formatting).
 - Änderungen in README oder Changelog falls relevant.
 - Keine sensiblen Daten in Commits/PRs.

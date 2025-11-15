@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = NodeHelper.create({
-  start () {
+  start() {
     this.config = null;
     this.images = [];
     this.currentImage = null;
@@ -22,7 +22,7 @@ module.exports = NodeHelper.create({
     this.log("Node helper started");
   },
 
-  log (message, data = null) {
+  log(message, data = null) {
     if (this.DEBUG) {
       if (data) {
         // If data is an array, limit the output
@@ -46,7 +46,7 @@ module.exports = NodeHelper.create({
     }
   },
 
-  socketNotificationReceived (notification, payload) {
+  socketNotificationReceived(notification, payload) {
     this.log(`Received notification: ${notification}`);
     if (notification === "CONFIG") {
       this.config = payload;
@@ -61,13 +61,16 @@ module.exports = NodeHelper.create({
     }
   },
 
-  cleanupCache () {
+  cleanupCache() {
     try {
       const files = fs.readdirSync(this.cacheDir);
       const now = new Date();
-      const retentionPeriod = this.config.cacheRetentionDays * 24 * 60 * 60 * 1000; // Convert days to milliseconds
+      const retentionPeriod =
+        this.config.cacheRetentionDays * 24 * 60 * 60 * 1000; // Convert days to milliseconds
 
-      this.log(`Cleaning up cache directory. Retention period: ${this.config.cacheRetentionDays} days`);
+      this.log(
+        `Cleaning up cache directory. Retention period: ${this.config.cacheRetentionDays} days`
+      );
 
       files.forEach((file) => {
         const filePath = path.join(this.cacheDir, file);
@@ -75,7 +78,9 @@ module.exports = NodeHelper.create({
         const fileAge = now - stats.mtime;
 
         if (fileAge > retentionPeriod) {
-          this.log(`Removing old cached file: ${file} (age: ${Math.round(fileAge / (24 * 60 * 60 * 1000))} days)`);
+          this.log(
+            `Removing old cached file: ${file} (age: ${Math.round(fileAge / (24 * 60 * 60 * 1000))} days)`
+          );
           fs.unlinkSync(filePath);
         }
       });
@@ -84,7 +89,7 @@ module.exports = NodeHelper.create({
     }
   },
 
-  async fetchAlbum () {
+  async fetchAlbum() {
     try {
       const url = `${this.config.apiUrl}/api/v1/photos`;
       const params = {
@@ -134,7 +139,10 @@ module.exports = NodeHelper.create({
         this.selectRandomImage();
       } else {
         this.log("Invalid response format:", response.data);
-        this.sendSocketNotification("ERROR", "Invalid response format from server");
+        this.sendSocketNotification(
+          "ERROR",
+          "Invalid response format from server"
+        );
       }
     } catch (error) {
       this.log("Error fetching album:", error.message);
@@ -151,7 +159,7 @@ module.exports = NodeHelper.create({
     }
   },
 
-  async selectRandomImage () {
+  async selectRandomImage() {
     if (this.images.length === 0) {
       this.log("No images available in album");
       this.sendSocketNotification("ERROR", "No images available in album");
@@ -174,7 +182,10 @@ module.exports = NodeHelper.create({
       // Get the first file from the Files array
       if (!selectedImage.Files || selectedImage.Files.length === 0) {
         this.log("No files found for image:", selectedImage);
-        this.sendSocketNotification("ERROR", "No files found for selected image");
+        this.sendSocketNotification(
+          "ERROR",
+          "No files found for selected image"
+        );
         return;
       }
 
@@ -188,10 +199,10 @@ module.exports = NodeHelper.create({
       // Use the download endpoint with the file hash
       let response;
       if (this.config && this.config.useThumbnails) {
-  // Use PhotoPrism Thumbnail API documented form: /api/v1/t/:hash/:token/:size
-  // size may be a named size like "fit_1920" or "tile_500". Prefer config.thumbnailSize;
-  // if not provided, default to a sensible medium-high resolution.
-  const size = this.config.thumbnailSize || 'fit_1920';
+        // Use PhotoPrism Thumbnail API documented form: /api/v1/t/:hash/:token/:size
+        // size may be a named size like "fit_1920" or "tile_500". Prefer config.thumbnailSize;
+        // if not provided, default to a sensible medium-high resolution.
+        const size = this.config.thumbnailSize || "fit_1920";
         // Use preview token if available, otherwise try download token, otherwise fallback to "public".
         const token = this.tokens.preview || this.tokens.download || "public";
         const thumbUrl = `${this.config.apiUrl}/api/v1/t/${file.Hash}/${token}/${size}`;
@@ -221,18 +232,24 @@ module.exports = NodeHelper.create({
       const contentType = response.headers["content-type"];
       if (!contentType || !contentType.startsWith("image/")) {
         this.log("Invalid response content type:", contentType);
-        this.sendSocketNotification("ERROR", "Invalid image response from server");
+        this.sendSocketNotification(
+          "ERROR",
+          "Invalid image response from server"
+        );
         return;
       }
 
       this.log("Image download response status:", response.status);
       this.log("Image download response headers:", response.headers);
 
-
       // Add timestamp to filename to prevent conflicts
       const timestamp = new Date().getTime();
-  const suffix = (this.config && this.config.useThumbnails) ? "_thumb.jpg" : ".jpg";
-      const imagePath = path.join(this.cacheDir, `${file.Hash}_${timestamp}${suffix}`);
+      const suffix =
+        this.config && this.config.useThumbnails ? "_thumb.jpg" : ".jpg";
+      const imagePath = path.join(
+        this.cacheDir,
+        `${file.Hash}_${timestamp}${suffix}`
+      );
       fs.writeFileSync(imagePath, response.data);
       this.log(`Image saved to: ${imagePath}`);
 
@@ -263,7 +280,7 @@ module.exports = NodeHelper.create({
     }
   },
 
-  cleanupOldVersions (fileHash, currentTimestamp) {
+  cleanupOldVersions(fileHash, currentTimestamp) {
     try {
       const files = fs.readdirSync(this.cacheDir);
       const pattern = new RegExp(`^${fileHash}_\\d+\\.jpg$`);

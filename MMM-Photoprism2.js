@@ -8,22 +8,21 @@ Module.register("MMM-Photoprism2", {
     fadeSpeed: 1000, // Fade speed in milliseconds
     maxWidth: "100%",
     maxHeight: "100%",
-    cacheRetentionDays: 1 // Number of days to keep cached images
-    ,
+    cacheRetentionDays: 1, // Number of days to keep cached images
     // Optional thumbnail usage to avoid downloading full images
     useThumbnails: true,
     // Optional exact thumbnail size string (e.g. "fit_1920" or "tile_500").
     // Use "auto" to pick a sensible size based on the browser window (default).
-    thumbnailSize: 'auto',
+    thumbnailSize: "auto",
     // Whether to preload images into the browser cache (hidden <img>)
     preloadInBrowser: true
   },
 
-  getStyles () {
+  getStyles() {
     return ["MMM-Photoprism2.css"];
   },
 
-  start () {
+  start() {
     console.log("[MMM-Photoprism2] Starting module");
     this.currentImage = null;
     this.loaded = false;
@@ -35,20 +34,24 @@ Module.register("MMM-Photoprism2", {
   },
 
   // Preload an image into the browser (hidden) to warm the cache.
-  preloadImage (url) {
-    if (!this.config || !this.config.preloadInBrowser || !url) return Promise.resolve();
+  preloadImage(url) {
+    if (!this.config || !this.config.preloadInBrowser || !url)
+      return Promise.resolve();
 
     return new Promise((resolve) => {
       try {
         // If we already have a preload image with same src, keep it
         if (this.preloadImg && this.preloadImg.src === url) {
-          this.log && console.log("[MMM-Photoprism2] Preload image already present");
+          this.log &&
+            console.log("[MMM-Photoprism2] Preload image already present");
           return resolve();
         }
 
         // Remove old preload if present
         if (this.preloadImg && this.preloadImg.parentNode) {
-          try { this.preloadImg.parentNode.removeChild(this.preloadImg); } catch (e) {}
+          try {
+            this.preloadImg.parentNode.removeChild(this.preloadImg);
+          } catch (e) {}
         }
 
         const img = document.createElement("img");
@@ -78,24 +81,30 @@ Module.register("MMM-Photoprism2", {
   // set to 'auto' (or null), derive a sensible fit_<size> based on the browser
   // window and devicePixelRatio. This keeps server requests aligned with the
   // display resolution and avoids downloading unnecessarily large thumbnails.
-  getEffectiveConfig () {
+  getEffectiveConfig() {
     if (!this.config) return null;
     const cfg = Object.assign({}, this.config);
 
     if (cfg.useThumbnails) {
       let size = cfg.thumbnailSize;
-      if (!size || size === 'auto') {
+      if (!size || size === "auto") {
         try {
           const dpr = window.devicePixelRatio || 1;
-          const maxPx = Math.max(window.innerWidth || 1920, window.innerHeight || 1080) * dpr;
+          const maxPx =
+            Math.max(window.innerWidth || 1920, window.innerHeight || 1080) *
+            dpr;
           // Photoprism standard sizes (increasing). We'll pick the smallest fit_ value
           // that is >= maxPx, otherwise the largest available.
-          const available = [720, 1280, 1600, 1920, 2048, 2560, 3840, 4096, 5120, 7680];
-          const chosen = available.find((s) => s >= Math.ceil(maxPx)) || available[available.length - 1];
+          const available = [
+            720, 1280, 1600, 1920, 2048, 2560, 3840, 4096, 5120, 7680
+          ];
+          const chosen =
+            available.find((s) => s >= Math.ceil(maxPx)) ||
+            available[available.length - 1];
           size = `fit_${chosen}`;
         } catch (e) {
           // Fallback to a sensible default
-          size = 'fit_1920';
+          size = "fit_1920";
         }
       }
       cfg.thumbnailSize = size;
@@ -104,7 +113,7 @@ Module.register("MMM-Photoprism2", {
     return cfg;
   },
 
-  getDom () {
+  getDom() {
     console.log("[MMM-Photoprism2] Creating DOM");
     const wrapper = document.createElement("div");
     wrapper.className = "photoprism-container";
@@ -116,13 +125,18 @@ Module.register("MMM-Photoprism2", {
     }
 
     if (!this.loaded) {
-      console.log("[MMM-Photoprism2] Module not loaded yet or suspended, showing loading message");
+      console.log(
+        "[MMM-Photoprism2] Module not loaded yet or suspended, showing loading message"
+      );
       wrapper.innerHTML = "Loading...";
       return wrapper;
     }
 
     if (this.currentImage) {
-      console.log("[MMM-Photoprism2] Creating image element for:", this.currentImage.path);
+      console.log(
+        "[MMM-Photoprism2] Creating image element for:",
+        this.currentImage.path
+      );
       const img = document.createElement("img");
       img.src = this.currentImage.path;
       img.className = "photoprism-image";
@@ -157,8 +171,10 @@ Module.register("MMM-Photoprism2", {
     return wrapper;
   },
 
-  async socketNotificationReceived (notification, payload) {
-    console.log(`[MMM-Photoprism2] Received socket notification: ${notification}`);
+  async socketNotificationReceived(notification, payload) {
+    console.log(
+      `[MMM-Photoprism2] Received socket notification: ${notification}`
+    );
     if (notification === "IMAGE_READY") {
       console.log("[MMM-Photoprism2] New image ready:", payload);
 
@@ -181,16 +197,20 @@ Module.register("MMM-Photoprism2", {
     }
   },
 
-  notificationReceived (notification, payload, sender) {
+  notificationReceived(notification, payload, sender) {
     // Only process notifications we care about
     if (notification === "DOM_OBJECTS_CREATED") {
-      console.log("[MMM-Photoprism2] DOM objects created, starting update interval");
+      console.log(
+        "[MMM-Photoprism2] DOM objects created, starting update interval"
+      );
       // Start the update interval
       if (this.updateTimer) {
         clearInterval(this.updateTimer);
       }
       this.updateTimer = setInterval(() => {
-        console.log("[MMM-Photoprism2] Interval triggered, requesting new image");
+        console.log(
+          "[MMM-Photoprism2] Interval triggered, requesting new image"
+        );
         this.error = null;
         const cfg = this.getEffectiveConfig();
         this.sendSocketNotification("CONFIG", cfg);
@@ -198,7 +218,7 @@ Module.register("MMM-Photoprism2", {
     }
   },
 
-  suspend () {
+  suspend() {
     console.log("[MMM-Photoprism2] Module suspended");
 
     // Keep the currentImage and preload element so the browser keeps the image cached.
@@ -211,16 +231,18 @@ Module.register("MMM-Photoprism2", {
     }
   },
 
-  resume () {
+  resume() {
     console.log("[MMM-Photoprism2] Module resumed");
 
-  const cfg = this.getEffectiveConfig();
-  this.sendSocketNotification("CONFIG", cfg);
+    const cfg = this.getEffectiveConfig();
+    this.sendSocketNotification("CONFIG", cfg);
 
     // Intervall neu starten
     if (!this.updateTimer) {
       this.updateTimer = setInterval(() => {
-        console.log("[MMM-Photoprism2] Interval triggered, requesting new image");
+        console.log(
+          "[MMM-Photoprism2] Interval triggered, requesting new image"
+        );
         this.error = null;
         const cfg = this.getEffectiveConfig();
         this.sendSocketNotification("CONFIG", cfg);
