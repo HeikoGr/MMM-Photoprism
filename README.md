@@ -1,7 +1,9 @@
-# MMM-Photoprism
+# MMM-Photoprism2
 
 A MagicMirror module that displays random photos from your PhotoPrism albums. The module will automatically fetch a new random photo every 5 minutes from a specified album.
 Please keep in mind this is mostly vibe-coded. I was happy to have a working exampe
+
+> **Note:** This project is based on the original [MMM-Photoprism](https://github.com/Brtrnd/MMM-Photoprism) by Brtrnd. Thank you for the great foundation!
 
 ## Features
 
@@ -17,12 +19,12 @@ Please keep in mind this is mostly vibe-coded. I was happy to have a working exa
 1. Clone this repository into your MagicMirror modules directory:
 ```bash
 cd ~/MagicMirror/modules
-git clone https://github.com/yourusername/MMM-Photoprism.git
+git clone https://github.com/HeikoGr/MMM-Photoprism2.git
 ```
 
 2. Install the required dependencies:
 ```bash
-cd MMM-Photoprism
+cd MMM-Photoprism2
 npm install
 ```
 
@@ -32,7 +34,7 @@ Add the following configuration block to your MagicMirror config.js file:
 
 ```javascript
 {
-    module: "MMM-Photoprism",
+    module: "MMM-Photoprism2",
     position: "middle_center", // This can be any of the MagicMirror positions
     config: {
         apiUrl: "http://your-photoprism-server:2342", // Your PhotoPrism server URL
@@ -61,7 +63,7 @@ Add the following configuration block to your MagicMirror config.js file:
 | `thumbnailSize` | Named thumbnail size to request from PhotoPrism (e.g. `fit_1920`, `tile_500`). Use `auto` to pick a size based on the display (recommended). | `auto` |
 | `preloadInBrowser` | Preload images into the browser cache (hidden `<img>`) so switching is instant and works while module is suspended | `true` |
 
-You can also set the retentiondays in the mmm-photoprism.js file. By default it removes all files after one day.
+You can also set the retentiondays in the MMM-Photoprism2.js file. By default it removes all files after one day.
 
 ## Getting Your PhotoPrism API Key
 

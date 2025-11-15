@@ -1,4 +1,4 @@
-Module.register("MMM-Photoprism", {
+Module.register("MMM-Photoprism2", {
   updateTimer: null,
   defaults: {
     apiUrl: "http://photoprism.local:2342",
@@ -20,11 +20,11 @@ Module.register("MMM-Photoprism", {
   },
 
   getStyles () {
-    return ["MMM-Photoprism.css"];
+    return ["MMM-Photoprism2.css"];
   },
 
   start () {
-    console.log("[MMM-Photoprism] Starting module");
+    console.log("[MMM-Photoprism2] Starting module");
     this.currentImage = null;
     this.loaded = false;
     this.error = null;
@@ -42,7 +42,7 @@ Module.register("MMM-Photoprism", {
       try {
         // If we already have a preload image with same src, keep it
         if (this.preloadImg && this.preloadImg.src === url) {
-          this.log && console.log("[MMM-Photoprism] Preload image already present");
+          this.log && console.log("[MMM-Photoprism2] Preload image already present");
           return resolve();
         }
 
@@ -55,11 +55,11 @@ Module.register("MMM-Photoprism", {
         img.style.display = "none";
         img.className = "photoprism-preload";
         img.onload = () => {
-          console.log("[MMM-Photoprism] Preload complete for:", url);
+          console.log("[MMM-Photoprism2] Preload complete for:", url);
           resolve();
         };
         img.onerror = (e) => {
-          console.log("[MMM-Photoprism] Preload failed for:", url, e);
+          console.log("[MMM-Photoprism2] Preload failed for:", url, e);
           // still resolve so UI can continue
           resolve();
         };
@@ -68,7 +68,7 @@ Module.register("MMM-Photoprism", {
         (document.body || document.documentElement).appendChild(img);
         this.preloadImg = img;
       } catch (err) {
-        console.log("[MMM-Photoprism] Preload exception:", err);
+        console.log("[MMM-Photoprism2] Preload exception:", err);
         resolve();
       }
     });
@@ -105,31 +105,31 @@ Module.register("MMM-Photoprism", {
   },
 
   getDom () {
-    console.log("[MMM-Photoprism] Creating DOM");
+    console.log("[MMM-Photoprism2] Creating DOM");
     const wrapper = document.createElement("div");
     wrapper.className = "photoprism-container";
 
     if (this.error) {
-      console.log("[MMM-Photoprism] Showing error:", this.error);
+      console.log("[MMM-Photoprism2] Showing error:", this.error);
       wrapper.innerHTML = `Error: ${this.error}`;
       return wrapper;
     }
 
     if (!this.loaded) {
-      console.log("[MMM-Photoprism] Module not loaded yet or suspended, showing loading message");
+      console.log("[MMM-Photoprism2] Module not loaded yet or suspended, showing loading message");
       wrapper.innerHTML = "Loading...";
       return wrapper;
     }
 
     if (this.currentImage) {
-      console.log("[MMM-Photoprism] Creating image element for:", this.currentImage.path);
+      console.log("[MMM-Photoprism2] Creating image element for:", this.currentImage.path);
       const img = document.createElement("img");
       img.src = this.currentImage.path;
       img.className = "photoprism-image";
       wrapper.appendChild(img);
 
       if (this.currentImage.title || this.currentImage.location) {
-        console.log("[MMM-Photoprism] Adding title and location");
+        console.log("[MMM-Photoprism2] Adding title and location");
         const infoContainer = document.createElement("div");
         infoContainer.className = "photoprism-info";
 
@@ -150,7 +150,7 @@ Module.register("MMM-Photoprism", {
         wrapper.appendChild(infoContainer);
       }
     } else {
-      console.log("[MMM-Photoprism] No image available to display");
+      console.log("[MMM-Photoprism2] No image available to display");
       wrapper.innerHTML = "No image available";
     }
 
@@ -158,15 +158,15 @@ Module.register("MMM-Photoprism", {
   },
 
   async socketNotificationReceived (notification, payload) {
-    console.log(`[MMM-Photoprism] Received socket notification: ${notification}`);
+    console.log(`[MMM-Photoprism2] Received socket notification: ${notification}`);
     if (notification === "IMAGE_READY") {
-      console.log("[MMM-Photoprism] New image ready:", payload);
+      console.log("[MMM-Photoprism2] New image ready:", payload);
 
       // Preload in browser first (if enabled) so displayed image is already cached
       try {
         await this.preloadImage(payload.path);
       } catch (e) {
-        console.log("[MMM-Photoprism] Error during preload:", e);
+        console.log("[MMM-Photoprism2] Error during preload:", e);
       }
 
       this.currentImage = payload;
@@ -174,7 +174,7 @@ Module.register("MMM-Photoprism", {
       this.error = null;
       this.updateDom(this.config.fadeSpeed);
     } else if (notification === "ERROR") {
-      console.log("[MMM-Photoprism] Error received:", payload);
+      console.log("[MMM-Photoprism2] Error received:", payload);
       this.error = payload;
       this.loaded = true;
       this.updateDom();
@@ -184,13 +184,13 @@ Module.register("MMM-Photoprism", {
   notificationReceived (notification, payload, sender) {
     // Only process notifications we care about
     if (notification === "DOM_OBJECTS_CREATED") {
-      console.log("[MMM-Photoprism] DOM objects created, starting update interval");
+      console.log("[MMM-Photoprism2] DOM objects created, starting update interval");
       // Start the update interval
       if (this.updateTimer) {
         clearInterval(this.updateTimer);
       }
       this.updateTimer = setInterval(() => {
-        console.log("[MMM-Photoprism] Interval triggered, requesting new image");
+        console.log("[MMM-Photoprism2] Interval triggered, requesting new image");
         this.error = null;
         const cfg = this.getEffectiveConfig();
         this.sendSocketNotification("CONFIG", cfg);
@@ -199,7 +199,7 @@ Module.register("MMM-Photoprism", {
   },
 
   suspend () {
-    console.log("[MMM-Photoprism] Module suspended");
+    console.log("[MMM-Photoprism2] Module suspended");
 
     // Keep the currentImage and preload element so the browser keeps the image cached.
     this.isSuspended = true;
@@ -212,7 +212,7 @@ Module.register("MMM-Photoprism", {
   },
 
   resume () {
-    console.log("[MMM-Photoprism] Module resumed");
+    console.log("[MMM-Photoprism2] Module resumed");
 
   const cfg = this.getEffectiveConfig();
   this.sendSocketNotification("CONFIG", cfg);
@@ -220,7 +220,7 @@ Module.register("MMM-Photoprism", {
     // Intervall neu starten
     if (!this.updateTimer) {
       this.updateTimer = setInterval(() => {
-        console.log("[MMM-Photoprism] Interval triggered, requesting new image");
+        console.log("[MMM-Photoprism2] Interval triggered, requesting new image");
         this.error = null;
         const cfg = this.getEffectiveConfig();
         this.sendSocketNotification("CONFIG", cfg);

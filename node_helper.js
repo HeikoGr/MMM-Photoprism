@@ -36,12 +36,12 @@ module.exports = NodeHelper.create({
             TakenAt: item.TakenAt,
             PlaceLabel: item.PlaceLabel
           }));
-          console.log(`[MMM-Photoprism] ${message}`, limitedData);
+          console.log(`[MMM-Photoprism2] ${message}`, limitedData);
         } else {
-          console.log(`[MMM-Photoprism] ${message}`, data);
+          console.log(`[MMM-Photoprism2] ${message}`, data);
         }
       } else {
-        console.log(`[MMM-Photoprism] ${message}`);
+        console.log(`[MMM-Photoprism2] ${message}`);
       }
     }
   },
@@ -240,7 +240,7 @@ module.exports = NodeHelper.create({
       this.cleanupOldVersions(file.Hash, timestamp);
 
       this.currentImage = {
-        path: `/modules/MMM-Photoprism/cache/${file.Hash}_${timestamp}${suffix}`,
+        path: `/modules/MMM-Photoprism2/cache/${file.Hash}_${timestamp}${suffix}`,
         title: selectedImage.Title || "Untitled",
         takenAt: selectedImage.TakenAt,
         fileHash: file.Hash

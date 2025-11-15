@@ -1,11 +1,11 @@
 {
-  "name": "mmm-photoprism",
+  "name": "mmm-photoprism2",
   "version": "1.0.1",
   "description": "MagicMirror² module to display random photos from PhotoPrism albums",
-  "main": "MMM-Photoprism.js",
+  "main": "MMM-Photoprism2.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HeikoGr/MMM-Photoprism.git"
+    "url": "git+https://github.com/HeikoGr/MMM-Photoprism2.git"
   },
   "scripts": {
     "lint": "eslint . --ext .js || true && prettier --check .",
