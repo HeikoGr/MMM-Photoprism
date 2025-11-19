@@ -1,7 +1,13 @@
 const NodeHelper = require("node_helper");
-const axios = require("axios");
+// const axios = require("axios"); // axios entfernt, nur fetch verwenden!
 const fs = require("fs");
 const path = require("path");
+
+// Hilfsfunktion zum Bauen eines Querystrings
+function withQuery(url, params) {
+  const query = new URLSearchParams(params).toString();
+  return url + (query ? "?" + query : "");
+}
 
 module.exports = NodeHelper.create({
   start() {
@@ -103,25 +109,39 @@ module.exports = NodeHelper.create({
       this.log("Fetching album with params:", params);
       this.log("Making request to URL:", url);
 
-      const response = await axios.get(url, {
-        params,
+      const fullUrl = withQuery(url, params);
+
+      const response = await fetch(fullUrl, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${this.config.apiKey}`
-        },
-        timeout: 10000 // 10 second timeout
+        }
+        // timeout gibt es bei fetch nicht direkt
       });
 
       this.log("Response status:", response.status);
-      this.log("Response headers:", response.headers);
+      // Header als Objekt loggen
+      this.log("Response headers:", Object.fromEntries(response.headers));
 
-      // Store tokens from response headers
-      this.tokens.download = response.headers["x-download-token"];
-      this.tokens.preview = response.headers["x-preview-token"];
+      // Store tokens from response headers (kleingeschrieben in fetch!)
+      this.tokens.download = response.headers.get("x-download-token");
+      this.tokens.preview = response.headers.get("x-preview-token");
       this.log("Stored tokens:", this.tokens);
 
+      if (!response.ok) {
+        this.log("Invalid response:", await response.text());
+        this.sendSocketNotification(
+          "ERROR",
+          "Invalid response from server"
+        );
+        return;
+      }
+
+      const data = await response.json();
+
       // The API returns the photos array directly
-      if (Array.isArray(response.data)) {
-        this.images = response.data;
+      if (Array.isArray(data)) {
+        this.images = data;
         this.log(`Found ${this.images.length} images in album`);
 
         // Log a summary of the first few images with limited fields
@@ -138,7 +158,7 @@ module.exports = NodeHelper.create({
 
         this.selectRandomImage();
       } else {
-        this.log("Invalid response format:", response.data);
+        this.log("Invalid response format:", data);
         this.sendSocketNotification(
           "ERROR",
           "Invalid response format from server"
@@ -146,15 +166,6 @@ module.exports = NodeHelper.create({
       }
     } catch (error) {
       this.log("Error fetching album:", error.message);
-      if (error.response) {
-        this.log("Error response status:", error.response.status);
-        this.log("Error response headers:", error.response.headers);
-        this.log("Error response data:", error.response.data);
-      } else if (error.request) {
-        this.log("No response received. Request details:", error.request);
-      } else {
-        this.log("Error details:", error);
-      }
       this.sendSocketNotification("ERROR", "Failed to fetch album");
     }
   },
@@ -196,40 +207,39 @@ module.exports = NodeHelper.create({
         Type: file.Type
       });
 
-      // Use the download endpoint with the file hash
+      // Bild downloaden - fetch statt axios
       let response;
       if (this.config && this.config.useThumbnails) {
-        // Use PhotoPrism Thumbnail API documented form: /api/v1/t/:hash/:token/:size
-        // size may be a named size like "fit_1920" or "tile_500". Prefer config.thumbnailSize;
-        // if not provided, default to a sensible medium-high resolution.
         const size = this.config.thumbnailSize || "fit_1920";
-        // Use preview token if available, otherwise try download token, otherwise fallback to "public".
         const token = this.tokens.preview || this.tokens.download || "public";
         const thumbUrl = `${this.config.apiUrl}/api/v1/t/${file.Hash}/${token}/${size}`;
         this.log(`Downloading thumbnail from: ${thumbUrl}`);
 
-        response = await axios.get(thumbUrl, {
+        response = await fetch(thumbUrl, {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${this.config.apiKey}`
-          },
-          responseType: "arraybuffer",
-          timeout: 10000 // 10 second timeout
+          }
         });
       } else {
         const imageUrl = `${this.config.apiUrl}/api/v1/dl/${file.Hash}?t=${this.tokens.download}`;
         this.log(`Downloading image from: ${imageUrl}`);
 
-        response = await axios.get(imageUrl, {
+        response = await fetch(imageUrl, {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${this.config.apiKey}`
-          },
-          responseType: "arraybuffer",
-          timeout: 10000 // 10 second timeout
+          }
         });
       }
 
-      // Check if the response is actually an image
-      const contentType = response.headers["content-type"];
+      if (!response.ok) {
+        this.log(`Failed to fetch image: Status ${response.status}`);
+        this.sendSocketNotification("ERROR", "Invalid image response from server");
+        return;
+      }
+
+      const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.startsWith("image/")) {
         this.log("Invalid response content type:", contentType);
         this.sendSocketNotification(
@@ -240,7 +250,10 @@ module.exports = NodeHelper.create({
       }
 
       this.log("Image download response status:", response.status);
-      this.log("Image download response headers:", response.headers);
+      this.log("Image download response headers:", Object.fromEntries(response.headers));
+
+      // arrayBuffer holen und in Buffer umwandeln
+      const buffer = Buffer.from(await response.arrayBuffer());
 
       // Add timestamp to filename to prevent conflicts
       const timestamp = new Date().getTime();
@@ -250,7 +263,7 @@ module.exports = NodeHelper.create({
         this.cacheDir,
         `${file.Hash}_${timestamp}${suffix}`
       );
-      fs.writeFileSync(imagePath, response.data);
+      fs.writeFileSync(imagePath, buffer);
       this.log(`Image saved to: ${imagePath}`);
 
       // Clean up old versions of this image
@@ -267,15 +280,6 @@ module.exports = NodeHelper.create({
       this.sendSocketNotification("IMAGE_READY", this.currentImage);
     } catch (error) {
       this.log("Error downloading image:", error.message);
-      if (error.response) {
-        this.log("Error response status:", error.response.status);
-        this.log("Error response headers:", error.response.headers);
-        this.log("Error response data:", error.response.data);
-      } else if (error.request) {
-        this.log("No response received. Request details:", error.request);
-      } else {
-        this.log("Error details:", error);
-      }
       this.sendSocketNotification("ERROR", "Failed to download image");
     }
   },

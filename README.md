@@ -30,7 +30,11 @@ npm install
 
 ## Update
 
-
+```bash
+cd ~/MagicMirror/modules/MMM-Photoprism2
+git pull
+npm install
+```
 
 ## Configuration
 
