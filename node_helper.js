@@ -1,5 +1,4 @@
 const NodeHelper = require("node_helper");
-// const axios = require("axios"); // axios entfernt, nur fetch verwenden!
 const fs = require("fs");
 const path = require("path");
 
@@ -207,7 +206,7 @@ module.exports = NodeHelper.create({
         Type: file.Type
       });
 
-      // Bild downloaden - fetch statt axios
+      // Bild downloaden
       let response;
       if (this.config && this.config.useThumbnails) {
         const size = this.config.thumbnailSize || "fit_1920";

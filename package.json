@@ -23,7 +23,6 @@
   "author": "HeikoGr",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.13.2"
   },
   "devDependencies": {
     "cspell": "^9.3.2",
