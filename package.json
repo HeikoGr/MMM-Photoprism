@@ -8,8 +8,8 @@
     "url": "git+https://github.com/HeikoGr/MMM-Photoprism2.git"
   },
   "scripts": {
-    "lint": "eslint  --ext .js || true && prettier --check .",
-    "lint:fix": "eslint --fix  && prettier --write .",
+    "lint": "eslint --ext .js && prettier --check .",
+    "lint:fix": "eslint --fix && prettier --write .",
     "test": "node --run lint",
     "test:spelling": "cspell .",
     "check": "node check.js ../../config/config.js || true"
@@ -22,11 +22,12 @@
   ],
   "author": "HeikoGr",
   "license": "MIT",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "cspell": "^9.3.2",
+    "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
+    "eslint-plugin-n": "^17.23.1",
     "globals": "^16.5.0",
     "prettier": "^3.6.2"
   }
