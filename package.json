@@ -22,7 +22,12 @@
   ],
   "author": "HeikoGr",
   "license": "MIT",
-  "dependencies": {},
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "undici": "^6.0.0"
+  },
   "devDependencies": {
     "cspell": "^9.3.2",
     "@eslint/js": "^9.39.1",

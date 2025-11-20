@@ -1,4 +1,7 @@
+/* eslint-disable n/no-missing-require */
 const NodeHelper = require("node_helper");
+/* eslint-enable n/no-missing-require */
+const { fetch } = require("undici");
 const fs = require("fs");
 const path = require("path");
 
@@ -291,7 +294,7 @@ module.exports = NodeHelper.create({
       files.forEach((file) => {
         if (pattern.test(file)) {
           const filePath = path.join(this.cacheDir, file);
-          const stats = fs.statSync(filePath);
+          fs.statSync(filePath); // ensure file exists; result not needed
           const fileTimestamp = parseInt(file.split("_")[1].split(".")[0]);
 
           // Keep only the current version

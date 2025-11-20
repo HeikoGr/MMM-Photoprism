@@ -1,3 +1,5 @@
+/* eslint-disable no-console, no-redeclare */
+/* global Module */
 Module.register("MMM-Photoprism2", {
   updateTimer: null,
   defaults: {
@@ -51,7 +53,7 @@ Module.register("MMM-Photoprism2", {
         if (this.preloadImg && this.preloadImg.parentNode) {
           try {
             this.preloadImg.parentNode.removeChild(this.preloadImg);
-          } catch (e) {}
+          } catch { /* ignore removal error */ }
         }
 
         const img = document.createElement("img");
@@ -102,7 +104,7 @@ Module.register("MMM-Photoprism2", {
             available.find((s) => s >= Math.ceil(maxPx)) ||
             available[available.length - 1];
           size = `fit_${chosen}`;
-        } catch (e) {
+        } catch {
           // Fallback to a sensible default
           size = "fit_1920";
         }
@@ -197,7 +199,7 @@ Module.register("MMM-Photoprism2", {
     }
   },
 
-  notificationReceived(notification, payload, sender) {
+  notificationReceived(notification) {
     // Only process notifications we care about
     if (notification === "DOM_OBJECTS_CREATED") {
       console.log(
