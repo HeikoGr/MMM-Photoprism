@@ -132,10 +132,7 @@ module.exports = NodeHelper.create({
 
       if (!response.ok) {
         this.log("Invalid response:", await response.text());
-        this.sendSocketNotification(
-          "ERROR",
-          "Invalid response from server"
-        );
+        this.sendSocketNotification("ERROR", "Invalid response from server");
         return;
       }
 
@@ -237,7 +234,10 @@ module.exports = NodeHelper.create({
 
       if (!response.ok) {
         this.log(`Failed to fetch image: Status ${response.status}`);
-        this.sendSocketNotification("ERROR", "Invalid image response from server");
+        this.sendSocketNotification(
+          "ERROR",
+          "Invalid image response from server"
+        );
         return;
       }
 
@@ -252,7 +252,10 @@ module.exports = NodeHelper.create({
       }
 
       this.log("Image download response status:", response.status);
-      this.log("Image download response headers:", Object.fromEntries(response.headers));
+      this.log(
+        "Image download response headers:",
+        Object.fromEntries(response.headers)
+      );
 
       // arrayBuffer holen und in Buffer umwandeln
       const buffer = Buffer.from(await response.arrayBuffer());

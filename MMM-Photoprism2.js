@@ -1,5 +1,4 @@
-/* eslint-disable no-console, no-redeclare */
-/* global Module */
+/* eslint-disable no-console */
 Module.register("MMM-Photoprism2", {
   updateTimer: null,
   defaults: {
@@ -65,7 +64,9 @@ Module.register("MMM-Photoprism2", {
         if (this.preloadImg && this.preloadImg.parentNode) {
           try {
             this.preloadImg.parentNode.removeChild(this.preloadImg);
-          } catch { /* ignore removal error */ }
+          } catch {
+            /* ignore removal error */
+          }
         }
 
         const img = document.createElement("img");
