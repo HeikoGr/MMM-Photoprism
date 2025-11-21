@@ -4,7 +4,7 @@ A MagicMirror module that displays random photos from your PhotoPrism albums. Th
 
 ![visualisation with custom css file](screenshot.png)
 
-Please keep in mind this is mostly vibe-coded. I was happy to have a working exampe
+Please keep in mind this is mostly vibe-coded. I was happy to have a working example
 
 > **Note:** This project is based on the original [MMM-Photoprism](https://github.com/Brtrnd/MMM-Photoprism) by Brtrnd. Thank you for the great foundation!
 
