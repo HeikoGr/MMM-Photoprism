@@ -32,7 +32,19 @@ Module.register("MMM-Photoprism2", {
     this.preloadImg = null; // hidden image element used to force browser caching
     this.isSuspended = false;
 
-    // Initial configuration send to node helper is done in resume()
+    // Try to send initial configuration to the node helper early so the
+    // node side can start fetching images even if MagicMirror hasn't
+    // called `resume()` yet (some setups may delay resume/suspend calls).
+    // This makes the module more robust w.r.t. startup/suspended state.
+    try {
+      const cfg = this.getEffectiveConfig();
+      if (cfg) {
+        this.sendSocketNotification("CONFIG", cfg);
+        this.hasRequestedConfig = true;
+      }
+    } catch (e) {
+      console.log("[MMM-Photoprism2] Failed to send initial CONFIG:", e);
+    }
   },
 
   // Preload an image into the browser (hidden) to warm the cache.

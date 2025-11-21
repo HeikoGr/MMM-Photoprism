@@ -1,6 +1,9 @@
 # MMM-Photoprism2
 
 A MagicMirror module that displays random photos from your PhotoPrism albums. The module will automatically fetch a new random photo every 5 minutes from a specified album.
+
+![visualisation with custom css file](screenshot.png)
+
 Please keep in mind this is mostly vibe-coded. I was happy to have a working exampe
 
 > **Note:** This project is based on the original [MMM-Photoprism](https://github.com/Brtrnd/MMM-Photoprism) by Brtrnd. Thank you for the great foundation!
