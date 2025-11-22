@@ -2,8 +2,6 @@
 const NodeHelper = require("node_helper");
 /* eslint-enable n/no-missing-require */
 const { fetch } = require("undici");
-const fs = require("fs");
-const path = require("path");
 
 // Hilfsfunktion zum Bauen eines Querystrings
 function withQuery(url, params) {
@@ -17,16 +15,11 @@ module.exports = NodeHelper.create({
     this.images = [];
     this.currentImage = null;
     this.DEBUG = true; // Enable verbose logging
-    this.cacheDir = path.join(__dirname, "cache");
     this.tokens = {
       download: null,
       preview: null
     };
 
-    // Create cache directory if it doesn't exist
-    if (!fs.existsSync(this.cacheDir)) {
-      fs.mkdirSync(this.cacheDir);
-    }
     this.log("Node helper started");
   },
 
@@ -61,39 +54,9 @@ module.exports = NodeHelper.create({
       this.log("Configuration received:", {
         apiUrl: this.config.apiUrl,
         albumId: this.config.albumId,
-        updateInterval: this.config.updateInterval,
-        cacheRetentionDays: this.config.cacheRetentionDays
+        updateInterval: this.config.updateInterval
       });
-      this.cleanupCache();
       this.fetchAlbum();
-    }
-  },
-
-  cleanupCache() {
-    try {
-      const files = fs.readdirSync(this.cacheDir);
-      const now = new Date();
-      const retentionPeriod =
-        this.config.cacheRetentionDays * 24 * 60 * 60 * 1000; // Convert days to milliseconds
-
-      this.log(
-        `Cleaning up cache directory. Retention period: ${this.config.cacheRetentionDays} days`
-      );
-
-      files.forEach((file) => {
-        const filePath = path.join(this.cacheDir, file);
-        const stats = fs.statSync(filePath);
-        const fileAge = now - stats.mtime;
-
-        if (fileAge > retentionPeriod) {
-          this.log(
-            `Removing old cached file: ${file} (age: ${Math.round(fileAge / (24 * 60 * 60 * 1000))} days)`
-          );
-          fs.unlinkSync(filePath);
-        }
-      });
-    } catch (error) {
-      this.log("Error cleaning up cache:", error.message);
     }
   },
 
@@ -200,115 +163,40 @@ module.exports = NodeHelper.create({
       }
 
       const file = selectedImage.Files[0];
-      this.log("Selected file for download:", {
+      this.log("Selected file for display: ", {
         Hash: file.Hash,
         Name: file.Name,
         Type: file.Type
       });
 
-      // Bild downloaden
-      let response;
+      // Build a direct Photoprism URL that includes the preview/download token
+      // so the browser can fetch it directly. This avoids any server-side
+      // download or file writes.
+      let imageUrl;
       if (this.config && this.config.useThumbnails) {
         const size = this.config.thumbnailSize || "fit_1920";
         const token = this.tokens.preview || this.tokens.download || "public";
-        const thumbUrl = `${this.config.apiUrl}/api/v1/t/${file.Hash}/${token}/${size}`;
-        this.log(`Downloading thumbnail from: ${thumbUrl}`);
-
-        response = await fetch(thumbUrl, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.config.apiKey}`
-          }
-        });
+        imageUrl = `${this.config.apiUrl}/api/v1/t/${file.Hash}/${token}/${size}`;
+        this.log(`Using thumbnail URL: ${imageUrl}`);
       } else {
-        const imageUrl = `${this.config.apiUrl}/api/v1/dl/${file.Hash}?t=${this.tokens.download}`;
-        this.log(`Downloading image from: ${imageUrl}`);
-
-        response = await fetch(imageUrl, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${this.config.apiKey}`
-          }
-        });
+        const token = this.tokens.download || "public";
+        imageUrl = `${this.config.apiUrl}/api/v1/dl/${file.Hash}?t=${token}`;
+        this.log(`Using download URL: ${imageUrl}`);
       }
-
-      if (!response.ok) {
-        this.log(`Failed to fetch image: Status ${response.status}`);
-        this.sendSocketNotification(
-          "ERROR",
-          "Invalid image response from server"
-        );
-        return;
-      }
-
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.startsWith("image/")) {
-        this.log("Invalid response content type:", contentType);
-        this.sendSocketNotification(
-          "ERROR",
-          "Invalid image response from server"
-        );
-        return;
-      }
-
-      this.log("Image download response status:", response.status);
-      this.log(
-        "Image download response headers:",
-        Object.fromEntries(response.headers)
-      );
-
-      // arrayBuffer holen und in Buffer umwandeln
-      const buffer = Buffer.from(await response.arrayBuffer());
-
-      // Add timestamp to filename to prevent conflicts
-      const timestamp = new Date().getTime();
-      const suffix =
-        this.config && this.config.useThumbnails ? "_thumb.jpg" : ".jpg";
-      const imagePath = path.join(
-        this.cacheDir,
-        `${file.Hash}_${timestamp}${suffix}`
-      );
-      fs.writeFileSync(imagePath, buffer);
-      this.log(`Image saved to: ${imagePath}`);
-
-      // Clean up old versions of this image
-      this.cleanupOldVersions(file.Hash, timestamp);
 
       this.currentImage = {
-        path: `/modules/MMM-Photoprism2/cache/${file.Hash}_${timestamp}${suffix}`,
+        path: imageUrl,
         title: selectedImage.Title || "Untitled",
         takenAt: selectedImage.TakenAt,
         fileHash: file.Hash
       };
 
-      this.log("Image ready for display:", this.currentImage);
+      this.log("Image URL ready for display:", this.currentImage);
       this.sendSocketNotification("IMAGE_READY", this.currentImage);
     } catch (error) {
-      this.log("Error downloading image:", error.message);
-      this.sendSocketNotification("ERROR", "Failed to download image");
+      this.log("Error preparing image URL:", error.message);
+      this.sendSocketNotification("ERROR", "Failed to prepare image URL");
     }
   },
 
-  cleanupOldVersions(fileHash, currentTimestamp) {
-    try {
-      const files = fs.readdirSync(this.cacheDir);
-      const pattern = new RegExp(`^${fileHash}_\\d+\\.jpg$`);
-
-      files.forEach((file) => {
-        if (pattern.test(file)) {
-          const filePath = path.join(this.cacheDir, file);
-          fs.statSync(filePath); // ensure file exists; result not needed
-          const fileTimestamp = parseInt(file.split("_")[1].split(".")[0]);
-
-          // Keep only the current version
-          if (fileTimestamp !== currentTimestamp) {
-            this.log(`Removing old version of image: ${file}`);
-            fs.unlinkSync(filePath);
-          }
-        }
-      });
-    } catch (error) {
-      this.log("Error cleaning up old versions:", error.message);
-    }
-  }
 });
