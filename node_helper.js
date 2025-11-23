@@ -26,7 +26,8 @@ module.exports = NodeHelper.create({
   log(level, message, data = null) {
     const levels = { error: 0, warn: 1, info: 2, debug: 3 };
     const configured = this.logLevel || "info";
-    const configuredLevel = levels[configured] !== undefined ? configured : "info";
+    const configuredLevel =
+      levels[configured] !== undefined ? configured : "info";
     const msgLevel = levels[level] !== undefined ? level : "info";
     if (levels[msgLevel] <= levels[configuredLevel]) {
       if (data) {
@@ -55,7 +56,8 @@ module.exports = NodeHelper.create({
     if (notification === "CONFIG") {
       this.config = payload;
       // adopt log level from frontend config if provided
-      if (this.config && this.config.logLevel) this.logLevel = this.config.logLevel;
+      if (this.config && this.config.logLevel)
+        this.logLevel = this.config.logLevel;
       this.log("info", "Configuration received:", {
         apiUrl: this.config.apiUrl,
         albumId: this.config.albumId,
@@ -91,7 +93,11 @@ module.exports = NodeHelper.create({
 
       this.log("debug", "Response status:", response.status);
       // Header als Objekt loggen
-      this.log("debug", "Response headers:", Object.fromEntries(response.headers));
+      this.log(
+        "debug",
+        "Response headers:",
+        Object.fromEntries(response.headers)
+      );
 
       // Store tokens from response headers (kleingeschrieben in fetch!)
       this.tokens.download = response.headers.get("x-download-token");
@@ -202,6 +208,5 @@ module.exports = NodeHelper.create({
       this.log("error", "Error preparing image URL:", error.message);
       this.sendSocketNotification("ERROR", "Failed to prepare image URL");
     }
-  },
-
+  }
 });

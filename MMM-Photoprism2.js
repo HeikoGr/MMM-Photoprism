@@ -16,8 +16,7 @@ Module.register("MMM-Photoprism2", {
     // Use "auto" to pick a sensible size based on the browser window (default).
     thumbnailSize: "auto",
     // Whether to preload images into the browser cache (hidden <img>)
-    preloadInBrowser: true
-    ,
+    preloadInBrowser: true,
     // How verbose logging should be in the browser console.
     // One of: "error", "warn", "info", "debug". Default is "info".
     logLevel: "info"
@@ -53,16 +52,20 @@ Module.register("MMM-Photoprism2", {
   // Simple log helper to control verbosity from the module config
   log(level, ...args) {
     const levels = { error: 0, warn: 1, info: 2, debug: 3 };
-    const configured = (this.config && this.config.logLevel) || this.defaults.logLevel || "info";
-    const configuredLevel = levels[configured] !== undefined ? configured : "info";
+    const configured =
+      (this.config && this.config.logLevel) || this.defaults.logLevel || "info";
+    const configuredLevel =
+      levels[configured] !== undefined ? configured : "info";
     const msgLevel = levels[level] !== undefined ? level : "info";
     if (levels[msgLevel] <= levels[configuredLevel]) {
       try {
         if (msgLevel === "error") console.error("[MMM-Photoprism2]", ...args);
-        else if (msgLevel === "warn") console.warn("[MMM-Photoprism2]", ...args);
-        else if (msgLevel === "info") console.info("[MMM-Photoprism2]", ...args);
+        else if (msgLevel === "warn")
+          console.warn("[MMM-Photoprism2]", ...args);
+        else if (msgLevel === "info")
+          console.info("[MMM-Photoprism2]", ...args);
         else console.debug("[MMM-Photoprism2]", ...args);
-      } catch (e) {
+      } catch {
         // ignore any console errors
       }
     }
