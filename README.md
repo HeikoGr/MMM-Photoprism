@@ -73,6 +73,7 @@ Add the following configuration block to your MagicMirror config.js file:
 | `useThumbnails` | Whether to request PhotoPrism thumbnails instead of full images (recommended for performance) | `true` |
 | `thumbnailSize` | Named thumbnail size to request from PhotoPrism (e.g. `fit_1920`, `tile_500`). Use `auto` to pick a size based on the display (recommended). | `auto` |
 | `preloadInBrowser` | Preload images into the browser cache (hidden `<img>`) so switching is instant and works while module is suspended | `true` |
+| `logLevel` | Browser console verbosity. One of `error`, `warn`, `info`, `debug` (less → more). Use `error` to quiet the console. | `info` |
 
 You can also set the retentiondays in the MMM-Photoprism2.js file. By default it removes all files after one day.
 
@@ -85,7 +86,11 @@ You can also set the retentiondays in the MMM-Photoprism2.js file. By default it
 
 ## Troubleshooting
 
-The module includes detailed logging that can be enabled by setting `DEBUG = true` in the node_helper.js file. This will show:
+The module includes configurable logging. Set `logLevel` in the module config (frontend) to control browser console output. Valid values: `error`, `warn`, `info`, `debug`.
+
+For node-side logging, the node helper will inherit the `logLevel` value sent from the frontend config. This replaces the old `DEBUG = true` flag.
+
+When enabled, logs may show:
 - API request details
 - Response data
 - Image selection process

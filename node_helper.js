@@ -14,19 +14,22 @@ module.exports = NodeHelper.create({
     this.config = null;
     this.images = [];
     this.currentImage = null;
-    this.DEBUG = true; // Enable verbose logging
+    this.logLevel = "info"; // default level; can be overridden by frontend CONFIG
     this.tokens = {
       download: null,
       preview: null
     };
 
-    this.log("Node helper started");
+    this.log("info", "Node helper started");
   },
 
-  log(message, data = null) {
-    if (this.DEBUG) {
+  log(level, message, data = null) {
+    const levels = { error: 0, warn: 1, info: 2, debug: 3 };
+    const configured = this.logLevel || "info";
+    const configuredLevel = levels[configured] !== undefined ? configured : "info";
+    const msgLevel = levels[level] !== undefined ? level : "info";
+    if (levels[msgLevel] <= levels[configuredLevel]) {
       if (data) {
-        // If data is an array, limit the output
         if (Array.isArray(data)) {
           const limitedData = data.slice(0, 3).map((item) => ({
             ID: item.ID,
@@ -48,10 +51,12 @@ module.exports = NodeHelper.create({
   },
 
   socketNotificationReceived(notification, payload) {
-    this.log(`Received notification: ${notification}`);
+    this.log("debug", `Received notification: ${notification}`);
     if (notification === "CONFIG") {
       this.config = payload;
-      this.log("Configuration received:", {
+      // adopt log level from frontend config if provided
+      if (this.config && this.config.logLevel) this.logLevel = this.config.logLevel;
+      this.log("info", "Configuration received:", {
         apiUrl: this.config.apiUrl,
         albumId: this.config.albumId,
         updateInterval: this.config.updateInterval
@@ -71,8 +76,8 @@ module.exports = NodeHelper.create({
         order: "oldest"
       };
 
-      this.log("Fetching album with params:", params);
-      this.log("Making request to URL:", url);
+      this.log("debug", "Fetching album with params:", params);
+      this.log("debug", "Making request to URL:", url);
 
       const fullUrl = withQuery(url, params);
 
@@ -84,17 +89,17 @@ module.exports = NodeHelper.create({
         // timeout gibt es bei fetch nicht direkt
       });
 
-      this.log("Response status:", response.status);
+      this.log("debug", "Response status:", response.status);
       // Header als Objekt loggen
-      this.log("Response headers:", Object.fromEntries(response.headers));
+      this.log("debug", "Response headers:", Object.fromEntries(response.headers));
 
       // Store tokens from response headers (kleingeschrieben in fetch!)
       this.tokens.download = response.headers.get("x-download-token");
       this.tokens.preview = response.headers.get("x-preview-token");
-      this.log("Stored tokens:", this.tokens);
+      this.log("debug", "Stored tokens:", this.tokens);
 
       if (!response.ok) {
-        this.log("Invalid response:", await response.text());
+        this.log("warn", "Invalid response:", await response.text());
         this.sendSocketNotification("ERROR", "Invalid response from server");
         return;
       }
@@ -104,7 +109,7 @@ module.exports = NodeHelper.create({
       // The API returns the photos array directly
       if (Array.isArray(data)) {
         this.images = data;
-        this.log(`Found ${this.images.length} images in album`);
+        this.log("info", `Found ${this.images.length} images in album`);
 
         // Log a summary of the first few images with limited fields
         const summary = this.images.slice(0, 3).map((img) => ({
@@ -116,32 +121,32 @@ module.exports = NodeHelper.create({
           TakenAt: img.TakenAt,
           PlaceLabel: img.PlaceLabel
         }));
-        this.log("Sample of album contents:", summary);
+        this.log("debug", "Sample of album contents:", summary);
 
         this.selectRandomImage();
       } else {
-        this.log("Invalid response format:", data);
+        this.log("warn", "Invalid response format:", data);
         this.sendSocketNotification(
           "ERROR",
           "Invalid response format from server"
         );
       }
     } catch (error) {
-      this.log("Error fetching album:", error.message);
+      this.log("error", "Error fetching album:", error.message);
       this.sendSocketNotification("ERROR", "Failed to fetch album");
     }
   },
 
   async selectRandomImage() {
     if (this.images.length === 0) {
-      this.log("No images available in album");
+      this.log("warn", "No images available in album");
       this.sendSocketNotification("ERROR", "No images available in album");
       return;
     }
 
     const randomIndex = Math.floor(Math.random() * this.images.length);
     const selectedImage = this.images[randomIndex];
-    this.log("Selected random image:", {
+    this.log("info", "Selected random image:", {
       ID: selectedImage.ID,
       UID: selectedImage.UID,
       FileName: selectedImage.FileName,
@@ -154,7 +159,7 @@ module.exports = NodeHelper.create({
     try {
       // Get the first file from the Files array
       if (!selectedImage.Files || selectedImage.Files.length === 0) {
-        this.log("No files found for image:", selectedImage);
+        this.log("warn", "No files found for image:", selectedImage);
         this.sendSocketNotification(
           "ERROR",
           "No files found for selected image"
@@ -163,7 +168,7 @@ module.exports = NodeHelper.create({
       }
 
       const file = selectedImage.Files[0];
-      this.log("Selected file for display: ", {
+      this.log("debug", "Selected file for display: ", {
         Hash: file.Hash,
         Name: file.Name,
         Type: file.Type
@@ -177,11 +182,11 @@ module.exports = NodeHelper.create({
         const size = this.config.thumbnailSize || "fit_1920";
         const token = this.tokens.preview || this.tokens.download || "public";
         imageUrl = `${this.config.apiUrl}/api/v1/t/${file.Hash}/${token}/${size}`;
-        this.log(`Using thumbnail URL: ${imageUrl}`);
+        this.log("debug", `Using thumbnail URL: ${imageUrl}`);
       } else {
         const token = this.tokens.download || "public";
         imageUrl = `${this.config.apiUrl}/api/v1/dl/${file.Hash}?t=${token}`;
-        this.log(`Using download URL: ${imageUrl}`);
+        this.log("debug", `Using download URL: ${imageUrl}`);
       }
 
       this.currentImage = {
@@ -191,10 +196,10 @@ module.exports = NodeHelper.create({
         fileHash: file.Hash
       };
 
-      this.log("Image URL ready for display:", this.currentImage);
+      this.log("info", "Image URL ready for display:", this.currentImage);
       this.sendSocketNotification("IMAGE_READY", this.currentImage);
     } catch (error) {
-      this.log("Error preparing image URL:", error.message);
+      this.log("error", "Error preparing image URL:", error.message);
       this.sendSocketNotification("ERROR", "Failed to prepare image URL");
     }
   },
