@@ -1,0 +1,30 @@
+{
+  "name": "MMM-Photoprism2 (MagicMirror Dev)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/opt/magic_mirror/modules/custom/MMM-Photoprism2",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/opt/magic_mirror/modules/custom/MMM-Photoprism2,type=bind",
+  "overrideCommand": false,
+  "shutdownAction": "stopContainer",
+  "remoteUser": "root",
+  "containerEnv": {
+    "IN_DEVCONTAINER": "1"
+  },
+  "forwardPorts": [8080],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "eamodio.gitlens",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+  "postCreateCommand": "/bin/sh .devcontainer/postCreate.sh",
+  "postStartCommand": "echo 'Devcontainer started. MagicMirror at http://localhost:8080'"
+}
