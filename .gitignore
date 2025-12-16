@@ -1,2 +1,5 @@
 cache/
 node_modules/
+config/custom.css
+config/config.js
+config/.env

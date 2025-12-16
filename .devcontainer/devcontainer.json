@@ -2,10 +2,10 @@
   "name": "MMM-Photoprism2 (MagicMirror Dev)",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": ".."
+    "context": "."
   },
-  "workspaceFolder": "/opt/magic_mirror/modules/custom/MMM-Photoprism2",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/opt/magic_mirror/modules/custom/MMM-Photoprism2,type=bind",
+  "workspaceFolder": "/opt/magic_mirror/modules/MMM-Photoprism2",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/opt/magic_mirror/modules/MMM-Photoprism2,type=bind",
   "overrideCommand": false,
   "shutdownAction": "stopContainer",
   "remoteUser": "root",
@@ -16,6 +16,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "actboy168.tasks",
         "eamodio.gitlens",
         "dbaeumer.vscode-eslint"
       ],

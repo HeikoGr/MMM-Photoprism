@@ -45,16 +45,6 @@ echo "${GREEN}=== MagicMirror Startup (module devcontainer) ===${NC}"
 CONFIG_DIR="${MAGICMIRROR_PATH}/config"
 mkdir -p "${CONFIG_DIR}"
 
-if [ ! -f "${CONFIG_DIR}/config.js" ] && [ -f "${CONFIG_DIR}/config.template.js" ]; then
-    echo "No config.js found; copying config.template.js to config.js"
-    cp "${CONFIG_DIR}/config.template.js" "${CONFIG_DIR}/config.js"
-fi
-
-if [ ! -f "${CONFIG_DIR}/custom.css" ] && [ -f "${CONFIG_DIR}/custom.template.css" ]; then
-    echo "No custom.css found; copying custom.template.css to custom.css"
-    cp "${CONFIG_DIR}/custom.template.css" "${CONFIG_DIR}/custom.css"
-fi
-
 echo "MagicMirror config directory is mounted from the repo and templates are copied when missing"
 
 if [ -f "${CONFIG_DIR}/custom.css" ]; then
