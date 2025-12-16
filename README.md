@@ -149,7 +149,7 @@ body {
     overflow: hidden;
 }
 
-.photoprism-container {
+.MMM-Photoprism2 .photoprism-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -159,7 +159,7 @@ body {
     max-width: 75vw;
 }
 
-.photoprism-image {
+.MMM-Photoprism2 .photoprism-image {
     display: block;
     left: auto;
     right: auto;
