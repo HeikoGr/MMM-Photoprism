@@ -35,6 +35,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-n": "^17.23.1",
     "globals": "^16.5.0",
-    "prettier": "^3.7.4"
+    "prettier": "^3.7.4",
+    "prettier-plugin-jinja-template": "2.1.0"
   }
 }
